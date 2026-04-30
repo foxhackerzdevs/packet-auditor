@@ -1,14 +1,25 @@
 [project]
 name = "packet-auditor"
-version = "1.1.0"
+version = "1.1.1"
 description = "Bare-bones packet auditor: Simple • Practical • Reliable"
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.7"
 license = {text = "MIT"}
+
 authors = [
     {name = "Abhrankan Chakrabarti", email = "abhrankan@gmail.com"}
 ]
-keywords = ["network", "packets", "scapy", "sniffer", "security", "cli"]
+
+keywords = [
+    "network",
+    "packet sniffer",
+    "scapy",
+    "network monitoring",
+    "cli tool",
+    "security",
+    "packet analysis"
+]
+
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -24,9 +35,12 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: System :: Networking :: Monitoring",
-    "Topic :: Security",
+    "Topic :: Security"
 ]
-dependencies = ["scapy>=2.5.0"]
+
+dependencies = [
+    "scapy>=2.5.0"
+]
 
 [project.urls]
 Homepage = "https://github.com/foxhackerzdevs/packet-auditor"
