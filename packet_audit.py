@@ -1,23 +1,36 @@
 #!/usr/bin/env python3
 """
-Bare-Bones Packet Auditor v1.1
+Bare-Bones Packet Auditor v1.1.1
 Philosophy: Simple • Practical • Reliable
 """
+
 import scapy.all as scapy
 from datetime import datetime
 import sys
 import argparse
+import platform
 
 # =========================
-# CONFIG
+# CONFIG & GLOBALS
 # =========================
-TOOL_VERSION = "1.1"
+TOOL_VERSION = "1.1.1"
+packet_count = 0
+start_time = None
+log_file = None
+quiet_mode = False
+
+
+def trunc(addr, width=39):
+    """Truncate long addresses for terminal display."""
+    return addr if len(addr) <= width else addr[:width - 3] + "..."
+
 
 def audit_packet(packet):
-    """Callback function to process and display packet metadata."""
+    """Process and display packet metadata."""
+    global packet_count, log_file, quiet_mode
+
     timestamp = datetime.now().strftime("%H:%M:%S")
     src = dst = "N/A"
-    transport_info = "NON-IP"
 
     # Handle IPv4 and IPv6
     if packet.haslayer(scapy.IP):
@@ -27,60 +40,150 @@ def audit_packet(packet):
         ip_layer = packet[scapy.IPv6]
         src, dst = ip_layer.src, ip_layer.dst
     else:
-        return # Skip non-IP packets like ARP
+        return  # Skip non-IP packets
 
-    # Determine Layer 4 Protocol and Ports
+    packet_count += 1
+
+    # Determine Layer 4 Protocol
     if packet.haslayer(scapy.TCP):
         tcp_layer = packet[scapy.TCP]
         flags = tcp_layer.sprintf("%TCP.flags%")
-        transport_info = f"TCP {ip_layer.sport}->{ip_layer.dport} [{flags}]"
-    elif packet.haslayer(scapy.UDP):
-        transport_info = f"UDP {ip_layer.sport}->{ip_layer.dport}"
-    elif packet.haslayer(scapy.ICMP):
-        transport_info = "ICMP"
-    else:
-        transport_info = f"PROTO {ip_layer.proto}"
+        transport_info = f"TCP {tcp_layer.sport}->{tcp_layer.dport} [{flags}]"
 
-    # Standardized output for easy scanning
-    print(f"[{timestamp}] {src:39} -> {dst:39} | {transport_info:25} | {len(packet)} bytes")
+    elif packet.haslayer(scapy.UDP):
+        udp_layer = packet[scapy.UDP]
+        transport_info = f"UDP {udp_layer.sport}->{udp_layer.dport}"
+
+    elif packet.haslayer(scapy.ICMP) or packet.haslayer(scapy.ICMPv6):
+        transport_info = "ICMP"
+
+    else:
+        proto = getattr(ip_layer, "proto", getattr(ip_layer, "nh", "UNK"))
+        transport_info = f"PROTO {proto}"
+
+    # Format output
+    output = (
+        f"[{timestamp}] #{packet_count:<6} "
+        f"{trunc(src):39} -> {trunc(dst):39} | "
+        f"{transport_info[:25]:25} | {len(packet)} bytes"
+    )
+
+    # Log to file
+    if log_file:
+        log_file.write(output + "\n")
+        log_file.flush()
+
+    # Print unless quiet
+    if not quiet_mode:
+        print(output)
+
 
 def main():
+    global packet_count, start_time, log_file, quiet_mode
+
+    packet_count = 0
+    start_time = None
+
+    # ---- Platform check ----
+    if "android" in platform.platform().lower() or "android" in platform.system().lower():
+        print("[!] Android/Termux detected. Sniffing not supported by Scapy here.")
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(
         description="Bare-Bones Packet Auditor: Simple, Practical, Reliable",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("-i", "--iface", help="Interface to sniff on. Default: all interfaces")
-    parser.add_argument("-f", "--filter", default="", help="BPF filter, e.g. 'tcp port 443 and host 1.1.1.1'")
-    parser.add_argument('--version', action='version', version=f'PacketAuditor {TOOL_VERSION}')
+
+    parser.add_argument("-i", "--iface", help="Interface to sniff on")
+    parser.add_argument("-f", "--filter", default="", help="BPF filter, e.g. 'tcp port 80'")
+    parser.add_argument("-o", "--output", help="Save audit log to a text file")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Quiet mode: no terminal output")
+    parser.add_argument("-l", "--list-interfaces", action="store_true", help="List interfaces and exit")
+    parser.add_argument("--version", action="version", version=f"PacketAuditor {TOOL_VERSION}")
+
     args = parser.parse_args()
+    quiet_mode = args.quiet
 
-    print(f"--- Bare-Bones Packet Auditor v{TOOL_VERSION} ---")
-    print("Philosophy: Simple, Practical, Reliable")
-    if args.iface:
-        print(f"Interface: {args.iface}")
-    if args.filter:
-        print(f"Filter: {args.filter}")
-    print("Monitoring traffic... (Ctrl+C to stop)")
-
-    try:
-        # store=0 is critical to prevent memory exhaustion during long runs
-        scapy.sniff(iface=args.iface, filter=args.filter, prn=audit_packet, store=0)
-    except KeyboardInterrupt:
-        print("\n[!] Audit stopped by user.")
+    # ---- List interfaces ----
+    if args.list_interfaces:
+        print("Available interfaces:")
+        for iface in scapy.get_if_list():
+            default_marker = " (default)" if iface == scapy.conf.iface else ""
+            print(f" - {iface}{default_marker}")
         sys.exit(0)
-    except PermissionError:
-        print("[!] Error: Root/Admin privileges required to sniff packets.")
-        print("[i] Try: sudo python3 packet_audit.py")
+
+    # ---- Interface selection ----
+    iface = args.iface or scapy.conf.iface
+    if not iface:
+        print("[!] No valid interface found.")
+        print("[i] Use -l to list interfaces.")
         sys.exit(1)
+
+    # ---- Setup logging ----
+    if args.output:
+        try:
+            log_file = open(args.output, "a", buffering=1)
+            if not quiet_mode:
+                print(f"[i] Logging to: {args.output}")
+        except Exception as e:
+            print(f"[!] Could not open log file: {e}")
+            sys.exit(1)
+
+    # ---- Header ----
+    if not quiet_mode:
+        print(f"--- Bare-Bones Packet Auditor v{TOOL_VERSION} ---")
+        print("Philosophy: Simple, Practical, Reliable")
+        print(f"Interface: {iface}")
+        if args.filter:
+            print(f"Filter: {args.filter}")
+        print("Monitoring traffic... Press Ctrl+C to stop.")
+
+    # ---- Sniff config ----
+    sniff_args = {
+        "prn": audit_packet,
+        "store": 0
+    }
+
+    if iface:
+        sniff_args["iface"] = iface
+
+    if args.filter:
+        sniff_args["filter"] = args.filter
+
+    # ---- Start timer ----
+    start_time = datetime.now()
+
+    # ---- Run ----
+    try:
+        scapy.sniff(**sniff_args)
+
+    except KeyboardInterrupt:
+        duration = (datetime.now() - start_time).total_seconds()
+        pps = packet_count / duration if duration > 0 else 0
+
+        print(f"\n[!] Stopped. Packets: {packet_count} | Duration: {duration:.2f}s | Rate: {pps:.2f} p/s")
+        sys.exit(0)
+
+    except PermissionError:
+        print("[!] Error: Root/Admin privileges required.")
+        sys.exit(1)
+
     except OSError as e:
         if "No such device" in str(e):
-            print(f"[!] Error: Interface '{args.iface}' not found.")
+            print(f"[!] Error: Interface '{iface}' not found.")
+            print("[i] Use -l to list interfaces.")
         else:
             print(f"[!] OS Error: {e}")
         sys.exit(1)
+
     except Exception as e:
         print(f"[!] Unexpected error: {e}")
         sys.exit(1)
+
+    finally:
+        if log_file:
+            log_file.close()
+
 
 if __name__ == "__main__":
     main()
