@@ -30,24 +30,29 @@ A lightweight command-line network packet auditing tool built with Python and Sc
 
 ## ⚙️ Installation
 
-### 1. Clone the Repository
+### Option 1: Install via pip (recommended)
+
+```bash
+pip install packet-auditor
+```
+
+Or install locally from source:
+
+```bash
+pip install .
+```
+
+---
+
+### Option 2: Clone and run manually
 
 ```bash
 git clone https://github.com/foxhackerzdevs/packet-auditor.git
 cd packet-auditor
+pip install -r requirements.txt
 ```
 
-### 2. Install Dependencies
-
-```bash
-pip install scapy
-```
-
-### 3. Run the Script
-
-```bash
-python3 packet_audit.py
-```
+---
 
 > ⚠️ Root/Admin privileges are required for packet sniffing.
 
@@ -55,8 +60,16 @@ python3 packet_audit.py
 
 ## 🚀 Usage
 
+### After pip install (CLI command)
+
 ```bash
-sudo python3 packet_audit.py [OPTIONS]
+sudo packet-audit
+```
+
+### Direct Python execution
+
+```bash
+sudo python3 packet_audit.py
 ```
 
 ### Options:
@@ -83,8 +96,9 @@ sudo python3 packet_audit.py [OPTIONS]
 
 ## 📦 Dependencies
 
-* Python 3.x
-* Scapy
+Defined in `pyproject.toml`:
+
+* `scapy >= 2.5.0`
 
 ---
 
@@ -112,16 +126,16 @@ No configuration file required. All options are passed via CLI arguments.
 
 ```bash
 # Monitor all traffic
-sudo python3 packet_audit.py
+sudo packet-audit
 
 # Specific interface
-sudo python3 packet_audit.py -i eth0
+sudo packet-audit -i eth0
 
 # Filtered traffic
-sudo python3 packet_audit.py -f "tcp port 80"
+sudo packet-audit -f "tcp port 80"
 
 # Combined
-sudo python3 packet_audit.py -i wlan0 -f "host 8.8.8.8"
+sudo packet-audit -i wlan0 -f "host 8.8.8.8"
 ```
 
 ---
@@ -130,17 +144,13 @@ sudo python3 packet_audit.py -i wlan0 -f "host 8.8.8.8"
 
 ### ❌ Permission Denied
 
-Run with:
-
 ```bash
-sudo python3 packet_audit.py
+sudo packet-audit
 ```
 
 ---
 
 ### ❌ Interface Not Found
-
-Check available interfaces:
 
 ```bash
 ip link show
@@ -152,7 +162,7 @@ ip link show
 
 * Wrong interface
 * Overly strict filter
-* No active network traffic
+* No active traffic
 
 ---
 
