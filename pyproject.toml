@@ -17,6 +17,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: System :: Networking :: Monitoring",
     "Topic :: Security",
 ]
@@ -30,6 +36,5 @@ Issues = "https://github.com/foxhackerzdevs/packet-auditor/issues"
 [project.scripts]
 packet-audit = "packet_audit:main"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["packet_audit.py"]
+[tool.setuptools]
+py-modules = ["packet_audit"]
