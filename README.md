@@ -1,14 +1,22 @@
-# 📡 Bare-Bones Packet Auditor v1.1
+# 📡 Bare-Bones Packet Auditor v1.1.1
 
 **Philosophy:** *Simple • Practical • Reliable*
 
-A lightweight command-line network packet auditing tool built with Python and Scapy. It captures live network traffic and displays concise, human-readable metadata for each packet in real time.
+A lightweight command-line network packet auditing tool built with Python and Scapy. It captures live network traffic and displays concise, human-readable metadata in real time.
 
 ---
 
 ## 📖 Introduction
 
-**Bare-Bones Packet Auditor** is designed for developers, students, and security enthusiasts who need a minimal yet effective way to observe network traffic. It focuses on clarity and performance, avoiding unnecessary complexity while still supporting essential packet inspection features.
+**Bare-Bones Packet Auditor** is designed for developers, students, and security enthusiasts who need a minimal yet effective way to observe network traffic.
+
+It prioritizes:
+
+* clarity
+* performance
+* usability
+
+No unnecessary complexity — just useful output.
 
 ---
 
@@ -36,12 +44,6 @@ A lightweight command-line network packet auditing tool built with Python and Sc
 pip install packet-auditor
 ```
 
-Or install locally from source:
-
-```bash
-pip install .
-```
-
 ---
 
 ### Option 2: Clone and run manually
@@ -49,7 +51,7 @@ pip install .
 ```bash
 git clone https://github.com/foxhackerzdevs/packet-auditor.git
 cd packet-auditor
-pip install -r requirements.txt
+pip install .
 ```
 
 ---
@@ -66,30 +68,31 @@ pip install -r requirements.txt
 sudo packet-audit
 ```
 
-### Direct Python execution
+---
 
-```bash
-sudo python3 packet_audit.py
-```
+### Options
 
-### Options:
-
-| Option           | Description                                                 |
-| ---------------- | ----------------------------------------------------------- |
-| `-i`, `--iface`  | Network interface to sniff on (default: all interfaces)     |
-| `-f`, `--filter` | BPF filter string (e.g., `"tcp port 443 and host 1.1.1.1"`) |
-| `--version`      | Display tool version                                        |
+| Option                    | Description                                                       |
+| ------------------------- | ----------------------------------------------------------------- |
+| `-i`, `--iface`           | Network interface to sniff on (default: system default interface) |
+| `-f`, `--filter`          | BPF filter string (e.g., `"tcp port 443"`)                        |
+| `-o`, `--output`          | Save output to a log file                                         |
+| `-q`, `--quiet`           | Disable terminal output (use with logging)                        |
+| `-l`, `--list-interfaces` | List available interfaces and exit                                |
+| `--version`               | Display tool version                                              |
 
 ---
 
 ## ✨ Features
 
 * 📦 Real-time packet monitoring
-* 🌐 Supports both IPv4 and IPv6
-* 🔍 Layer 4 protocol detection (TCP, UDP, ICMP)
-* 🧠 Displays TCP flags for deeper insight
-* ⚡ Lightweight and memory-efficient (`store=0`)
-* 🎯 Supports BPF filtering for targeted sniffing
+* 🌐 IPv4 and IPv6 support
+* 🔍 TCP, UDP, ICMP detection
+* 🧠 TCP flag inspection
+* ⚡ Lightweight (`store=0`, no memory buildup)
+* 🎯 BPF filtering support
+* 📁 Optional logging to file
+* 🤫 Quiet mode for background operation
 * 🖥️ Clean, aligned terminal output
 
 ---
@@ -104,20 +107,20 @@ Defined in `pyproject.toml`:
 
 ## 🔧 Configuration
 
-No configuration file required. All options are passed via CLI arguments.
+No configuration file required. Everything is controlled via CLI arguments.
 
 ---
 
 ## 📊 Output Format
 
 ```text
-[HH:MM:SS] SOURCE_IP -> DESTINATION_IP | PROTOCOL INFO | PACKET_SIZE bytes
+[HH:MM:SS] #COUNT SOURCE_IP -> DESTINATION_IP | PROTOCOL INFO | SIZE bytes
 ```
 
 ### Example:
 
 ```text
-[12:34:56] 192.168.1.10 -> 142.250.183.78 | TCP 443->51532 [S] | 60 bytes
+[12:34:56] #42     192.168.1.10 -> 142.250.183.78 | TCP 443->51532 [S] | 60 bytes
 ```
 
 ---
@@ -134,8 +137,14 @@ sudo packet-audit -i eth0
 # Filtered traffic
 sudo packet-audit -f "tcp port 80"
 
-# Combined
-sudo packet-audit -i wlan0 -f "host 8.8.8.8"
+# Log to file
+sudo packet-audit -o packets.log
+
+# Quiet background logging
+sudo packet-audit -q -o packets.log
+
+# Combined usage
+sudo packet-audit -i wlan0 -f "host 8.8.8.8" -o log.txt
 ```
 
 ---
@@ -153,16 +162,26 @@ sudo packet-audit
 ### ❌ Interface Not Found
 
 ```bash
-ip link show
+packet-audit -l
 ```
 
 ---
 
 ### ❌ No Packets Captured
 
+Possible causes:
+
 * Wrong interface
 * Overly strict filter
-* No active traffic
+* No active network traffic
+
+---
+
+### ❌ Android / Termux Not Supported
+
+Packet sniffing is not supported on Android due to OS limitations.
+
+Use Linux or macOS instead.
 
 ---
 
@@ -181,6 +200,6 @@ This project is licensed under the MIT License.
 
 ## 💡 Notes
 
-* Designed for educational and debugging purposes
-* Not intended as a full intrusion detection system
+* Designed for learning, debugging, and lightweight monitoring
+* Not a full intrusion detection system
 * Use only on networks you own or are authorized to monitor
