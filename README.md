@@ -1,4 +1,4 @@
-# 📡 Bare-Bones Packet Auditor v1.1.1
+# 📡 Bare-Bones Packet Auditor v1.1.2
 
 **Philosophy:** *Simple • Practical • Reliable*
 
@@ -40,7 +40,7 @@ No unnecessary complexity — just useful output.
 
 ### Option 1: Install via pip (recommended)
 
-```bash
+```bash id="5u6k7e"
 pip install packet-auditor
 ```
 
@@ -48,7 +48,7 @@ pip install packet-auditor
 
 ### Option 2: Clone and run manually
 
-```bash
+```bash id="mjv8y7"
 git clone https://github.com/foxhackerzdevs/packet-auditor.git
 cd packet-auditor
 pip install .
@@ -64,8 +64,18 @@ pip install .
 
 ### After pip install (CLI command)
 
-```bash
+```bash id="7gf5ob"
 sudo packet-audit
+```
+
+---
+
+### Windows
+
+Run PowerShell or CMD as Administrator:
+
+```powershell id="v6a8oc"
+packet-audit
 ```
 
 ---
@@ -77,7 +87,7 @@ sudo packet-audit
 | `-i`, `--iface`           | Network interface to sniff on (default: system default interface) |
 | `-f`, `--filter`          | BPF filter string (e.g., `"tcp port 443"`)                        |
 | `-o`, `--output`          | Save output to a log file                                         |
-| `-q`, `--quiet`           | Disable terminal output (use with logging)                        |
+| `-q`, `--quiet`           | Disable terminal packet output                                    |
 | `-l`, `--list-interfaces` | List available interfaces and exit                                |
 | `--version`               | Display tool version                                              |
 
@@ -94,6 +104,7 @@ sudo packet-audit
 * 📁 Optional logging to file
 * 🤫 Quiet mode for background operation
 * 🖥️ Clean, aligned terminal output
+* 🪟 Windows + Npcap support
 
 ---
 
@@ -113,21 +124,21 @@ No configuration file required. Everything is controlled via CLI arguments.
 
 ## 📊 Output Format
 
-```text
+```text id="dqu8wp"
 [HH:MM:SS] #COUNT SOURCE_IP -> DESTINATION_IP | PROTOCOL INFO | SIZE bytes
 ```
 
-### Example:
+### Example
 
-```text
-[12:34:56] #42     192.168.1.10 -> 142.250.183.78 | TCP 443->51532 [S] | 60 bytes
+```text id="onm4ns"
+[22:39:44] #42     10.247.195.51 -> 20.189.173.2 | TCP 55679->443 [PA] | 498 bytes
 ```
 
 ---
 
 ## 🧪 Examples
 
-```bash
+```bash id="hk3dmc"
 # Monitor all traffic
 sudo packet-audit
 
@@ -145,6 +156,9 @@ sudo packet-audit -q -o packets.log
 
 # Combined usage
 sudo packet-audit -i wlan0 -f "host 8.8.8.8" -o log.txt
+
+# List interfaces
+packet-audit -l
 ```
 
 ---
@@ -153,15 +167,21 @@ sudo packet-audit -i wlan0 -f "host 8.8.8.8" -o log.txt
 
 ### ❌ Permission Denied
 
-```bash
+Linux/macOS:
+
+```bash id="kj1q8m"
 sudo packet-audit
 ```
+
+Windows:
+
+* Run PowerShell or CMD as Administrator
 
 ---
 
 ### ❌ Interface Not Found
 
-```bash
+```bash id="b1w9fz"
 packet-audit -l
 ```
 
@@ -179,9 +199,21 @@ Possible causes:
 
 ### ❌ Android / Termux Not Supported
 
-Packet sniffing is not supported on Android due to OS limitations.
+Packet sniffing is not supported on Android due to OS limitations in Scapy.
 
-Use Linux or macOS instead.
+Use Linux, macOS, or Windows instead.
+
+---
+
+### ❌ Windows Capture Issues
+
+Install Npcap:
+
+* [https://npcap.com/](https://npcap.com/)
+
+During installation, enable:
+
+* **Install Npcap in WinPcap API-compatible Mode**
 
 ---
 
@@ -203,3 +235,9 @@ This project is licensed under the MIT License.
 * Designed for learning, debugging, and lightweight monitoring
 * Not a full intrusion detection system
 * Use only on networks you own or are authorized to monitor
+
+---
+
+## 🧠 Philosophy
+
+> If a tool needs a long manual, it’s already too complex.

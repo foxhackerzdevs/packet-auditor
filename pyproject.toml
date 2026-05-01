@@ -1,9 +1,12 @@
 [project]
 name = "packet-auditor"
-version = "1.1.1"
+version = "1.1.2"
 description = "Bare-bones packet auditor: Simple • Practical • Reliable"
+
 readme = {file = "README.md", content-type = "text/markdown"}
+
 requires-python = ">=3.7"
+
 license = {text = "MIT"}
 
 authors = [
@@ -23,10 +26,15 @@ keywords = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
-    "Intended Audience :: System Administrators",
+    "Intended Audience :: Developers",
     "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
+
+    "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -34,8 +42,11 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+
+    "Topic :: Security",
+    "Topic :: System :: Networking",
     "Topic :: System :: Networking :: Monitoring",
-    "Topic :: Security"
+    "Topic :: Utilities"
 ]
 
 dependencies = [
