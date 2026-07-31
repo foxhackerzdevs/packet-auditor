@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Bare-Bones Packet Auditor v1.1.2
+Bare-Bones Packet Auditor v1.1.3
 Philosophy: Simple • Practical • Reliable
 """
 
@@ -14,7 +14,7 @@ import platform
 # =========================
 # CONFIG & GLOBALS
 # =========================
-TOOL_VERSION = "1.1.2"
+TOOL_VERSION = "1.1.3"
 packet_count = 0
 start_time = None
 log_file = None
@@ -179,7 +179,11 @@ def main():
     # ---- Sniff Configuration ----
     sniff_args = {
         "prn": audit_packet,
-        "store": 0
+        "store": 0,
+        # scapy's sniff() swallows KeyboardInterrupt internally by default
+        # (AsyncSniffer._run only re-raises when chainCC=True), which would
+        # make the except KeyboardInterrupt block below dead code.
+        "chainCC": True,
     }
 
     if iface:

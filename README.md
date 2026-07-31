@@ -1,4 +1,4 @@
-# 📡 Bare-Bones Packet Auditor v1.1.2
+# 📡 Bare-Bones Packet Auditor v1.1.3
 
 **Philosophy:** *Simple • Practical • Reliable*
 
